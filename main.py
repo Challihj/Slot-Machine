@@ -149,7 +149,7 @@ def main():
         
         balance += spin(balance)
         
-    print(f"You finished with ${balance}")
+    print(f"You cashed out with an final balance of: ${balance}")
     
 
 main()
