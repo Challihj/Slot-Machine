@@ -16,6 +16,28 @@ symbol_count = {
     "♦": 6,
     "♣": 8 
 }
+# Assigning value to each symbol
+symbol_value = {
+    "♠": 5, 
+    "♥": 4,
+    "♦": 3,
+    "♣": 2 
+}
+def check_win(columns, lines, bet, values):
+    winnings = 0
+    winning_lines = []
+    for line in range(lines):
+        symbol = columns[0][line]
+        for column in columns:
+            symbol_to_check = column[line]
+            if symbol != symbol_to_check:
+                break
+        else:
+            winnings += values[symbol] * bet
+            winning_lines.append(line + 1)
+
+    return winnings, winning_lines
+
 
 def get_spin(rows, cols, symbols):
     all_symbols = []
@@ -49,9 +71,9 @@ def slot_output(columns):
 def deposit():
     while True:
         amount = input("Wager amount: $")
-        if amount.isdigit(): #check if wager amount is a valid number (not negative)
+        if amount.isdigit(): # Check if wager amount is a valid number (not negative)
             amount = int(amount)
-            if amount > 0:
+            if amount > 0: # Check that wager amount is more than 0
                 break
             else:
                 print("Wager must be greater than 0")
@@ -63,9 +85,9 @@ def deposit():
 def get_lines():
     while True:
         lines = input("Enter number of lines to bet on (1 - " + str(MAX_LINES) + ")? ")
-        if lines.isdigit(): #check if lines entered is a valid number
+        if lines.isdigit(): # Check if lines entered is a valid number
             lines = int(lines)
-            if 1 <= lines <= MAX_LINES: # check if lines entered is valid (between 1 and 3)
+            if 1 <= lines <= MAX_LINES: # Check if lines entered is valid (between 1 and 3)
                 break
             else:
                 print("Enter a valid number of lines")
@@ -77,25 +99,24 @@ def get_lines():
 def get_bet():
     while True:
         amount = input("Bet amount on each line: $")
-        if amount.isdigit(): #check if amount is a digit
+        if amount.isdigit(): # Check if amount is a digit
             amount = int(amount)
-            if MIN_BET <= amount <= MAX_BET:
+            if MIN_BET <= amount <= MAX_BET: # Check that bet is between min and max allowed
                 break
-            else:
+            else: # When bet is not between min and max
                 print(f"Bet must be between ${MIN_BET} - ${MAX_BET}")
         else:
-            print("Please enter a valid bet")
+            print("Please enter a valid bet") # Prints when bet is not a valid number
     
     return amount
 
-def main():
-    balance = deposit()
+def spin(balance):
     lines = get_lines()
     while True:
         bet = get_bet()
         total_bet  = bet * lines
 
-        if total_bet > balance:
+        if total_bet > balance: # Checks if total bet is more than players balance
             print(f"Insufficient funds. Current balance: ${balance}, amount attempted: ${total_bet}")        
         else:
             break
@@ -104,6 +125,32 @@ def main():
 
     slots = get_spin(ROWS, COLS, symbol_count)
     slot_output(slots)
+    winnings, winning_lines = check_win(slots, lines, bet, symbol_value)
+    
+    if winnings == 0:
+        print("Sorry, you did not win")
+    else:
+        print(f"Winner Winner Chicken Dinner \nYou won: ${winnings}!")
+        print(f"You won on line(s): ", *winning_lines)
+
+    return winnings - total_bet
+
+def main():
+    balance = deposit()
+    while True:
+        print(f"Current balance is ${balance}")
+        if balance == 0:
+            print("Out of money :( Thank you for playing!")
+            break
+        else:
+            answer = input("Press enter to play (q to quit)")
+            if answer == "q":
+                break
+        
+        balance += spin(balance)
+        
+    print(f"You finished with ${balance}")
+    
 
 main()
 
